@@ -268,9 +268,6 @@ function EasySCP_Directories(){
 	if (!DaemonCommon::systemCreateDirectory(DaemonConfig::$cfg->{'APACHE_TRAFFIC_LOG_DIR'}, DaemonConfig::$cfg->{'APACHE_USER'}, DaemonConfig::$cfg->{'APACHE_GROUP'}, 0755)){
 		return 'Error: Failed to create '.DaemonConfig::$cfg->{'APACHE_TRAFFIC_LOG_DIR'};
 	}
-	if (!DaemonCommon::systemCreateDirectory(DaemonConfig::$cfg->{'APACHE_BACKUP_LOG_DIR'}, DaemonConfig::$cfg->{'APACHE_USER'}, DaemonConfig::$cfg->{'APACHE_GROUP'}, 0755)){
-		return 'Error: Failed to create '.DaemonConfig::$cfg->{'APACHE_BACKUP_LOG_DIR'};
-	}
 
 	if (!DaemonCommon::systemCreateDirectory(DaemonConfig::$cfg->{'MTA_VIRTUAL_CONF_DIR'}, DaemonConfig::$cfg->{'ROOT_USER'}, DaemonConfig::$cfg->{'ROOT_GROUP'}, 0755)){
 		return 'Error: Failed to create '.DaemonConfig::$cfg->{'MTA_VIRTUAL_CONF_DIR'};
@@ -315,7 +312,7 @@ function EasySCP_Directories(){
 function EasySCP_main_configuration_file(){
 	$xml = simplexml_load_file(DaemonConfig::$cfg->{'ROOT_DIR'} . '/../setup/config.xml');
 
-	DaemonConfig::$cfg->{'BuildDate'} = '20160115';
+	DaemonConfig::$cfg->{'BuildDate'} = '20160119';
 	DaemonConfig::$cfg->{'DistName'} = $xml->{'DistName'};
 	DaemonConfig::$cfg->{'DistVersion'} = $xml->{'DistVersion'};
 	DaemonConfig::$cfg->{'DEFAULT_ADMIN_ADDRESS'} = $xml->{'PANEL_MAIL'};
@@ -362,14 +359,12 @@ function EasySCP_main_configuration_file(){
 }
 
 function EasySCP_database(){
-	$sql = simplexml_load_file(DaemonConfig::$cfg->{'ROOT_DIR'} . '/../setup/config.xml');
-
 	$connectid = '';
 	try {
 		$connectid = new PDO(
-			'mysql:host='.$sql->{'DB_HOST'}.';port=3306',
-			$sql->{'DB_USER'},
-			$sql->{'DB_PASSWORD'},
+			'mysql:host='.DaemonConfig::$cfg->{'DATABASE_HOST'}.';port=3306',
+			DaemonConfig::$cfg->{'DATABASE_USER'},
+			DB::decrypt_data(DaemonConfig::$cfg->{'DATABASE_PASSWORD'}),
 			array(
 				PDO::ATTR_PERSISTENT => true,
 				PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
@@ -383,7 +378,7 @@ function EasySCP_database(){
 		System_Daemon::debug('Create EasySCP DB if not exists');
 
 		$query = "
-			CREATE DATABASE IF NOT EXISTS ".$sql->{'DB_DATABASE'}."
+			CREATE DATABASE IF NOT EXISTS ".DaemonConfig::$cfg->{'DATABASE_NAME'}."
   			DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
   		";
 
