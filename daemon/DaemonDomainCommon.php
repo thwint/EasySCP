@@ -590,14 +590,20 @@ class DaemonDomainCommon {
 
 		// delete existing ssl key and certificate
 		$certFile = DaemonConfig::$cfg->SSL_CERT_DIR . '/easyscp_' . $domainData['domain_name'] . '-cert.pem';
+		$cacertFile = DaemonConfig::$cfg->SSL_CERT_DIR . '/easyscp_' . $domainData['domain_name'] . '-cacert.pem';
 		$keyFile = DaemonConfig::$cfg->SSL_KEY_DIR . '/easyscp_' . $domainData['domain_name'] . '-key.pem';
 		if (file_exists($certFile)) {
-			$cmdCert = DaemonConfig::$cmd->CMD_RM . $certFile;
+			$cmdCert = DaemonConfig::$cmd->CMD_RM . ' ' . $certFile;
 			exec($cmdCert);
 			System_Daemon::debug('Deleted SSL certificate');
 		}
+		if (file_exists($cacertFile)) {
+			$cmdCACert = DaemonConfig::$cmd->CMD_RM . ' ' . $cacertFile;
+			exec($cmdCACert);
+			System_Daemon::debug('Deleted SSL CA certificate');
+		}
 		if (file_exists($keyFile)) {
-			$cmdKey = DaemonConfig::$cmd->CMD_RM . $keyFile;
+			$cmdKey = DaemonConfig::$cmd->CMD_RM . ' ' . $keyFile;
 			exec($cmdKey);
 			System_Daemon::debug('Deleted SSL key');
 		}
