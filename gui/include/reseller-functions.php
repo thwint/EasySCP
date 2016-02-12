@@ -1163,6 +1163,8 @@ function reseller_limits_check($sql, &$err_msg, $reseller_id, $hpid, $props = ''
 			$data = $res->fetchRow();
 			$props = unserialize($data['props']);
 		}
+	} else if (!is_array($props)){
+		$props = unserialize($props);
 	}
 
 	$sub_new = $props['subdomain_cnt'];
